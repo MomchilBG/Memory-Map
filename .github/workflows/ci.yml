@@ -122,6 +122,8 @@ jobs:
     needs: [checks, build, e2e]
     runs-on: ubuntu-latest
     strategy:
+      # Deploy each service on its own, so one failure does not cancel the other.
+      fail-fast: false
       matrix:
         include:
           - app: api

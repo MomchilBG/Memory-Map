@@ -139,4 +139,8 @@ jobs:
             echo "::error::Secret ${{ matrix.hook }} is not set"
             exit 1
           fi
-          curl --fail --silent --show-error --get "$DEPLOY_HOOK" --data-urlencode "imgURL=$IMAGE"
+          # Print Render's answer so a rejected deploy explains itself.
+          status=$(curl --silent --show-error --output response.txt --write-out '%{http_code}' --get "$DEPLOY_HOOK" --data-urlencode "imgURL=$IMAGE")
+          echo "Render responded with HTTP $status:"
+          cat response.txt
+          [ "$status" -lt 300 ]

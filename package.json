@@ -17,6 +17,13 @@
     "turbo": "^2.11.7",
     "typescript": "7.0.2"
   },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "^24.0.0",
+      "onFail": "download"
+    }
+  },
   "engines": {
     "node": ">=24"
   },

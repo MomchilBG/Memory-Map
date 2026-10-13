@@ -21,8 +21,6 @@ services:
     startCommand: pnpm --filter web start
     autoDeployTrigger: commit
     envVars:
-      - key: API_HOSTPORT
-        fromService:
-          type: web
-          name: memory-map-api
-          property: hostport
+      # The public URL: free web services cannot receive private network traffic.
+      - key: API_URL
+        value: https://memory-map-api.onrender.com

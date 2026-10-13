@@ -9,7 +9,7 @@ Memory Map is an early-stage web app. The repository is a pnpm + Turborepo monor
 ## Layout
 
 - `apps/web` — the React Router v8 app (framework mode, Vite, Tailwind CSS v4). Next.js was removed in favour of React Router.
-- `apps/api` — the NestJS 12 API (Fastify adapter, SWC builder, ESM, Vitest). Listens on `PORT`, default 3000. The web app reaches it from its server-side loaders through the `API_URL` environment variable, default `http://localhost:3000`. On Render it uses `API_HOSTPORT` instead.
+- `apps/api` — the NestJS 12 API (Fastify adapter, SWC builder, ESM, Vitest). Listens on `PORT`, default 3000. The web app reaches it from its server-side loaders through the `API_URL` environment variable, default `http://localhost:3000`.
 - `packages/ui` — shared React components, exported as source (`@repo/ui/*` maps to `src/*.tsx`).
 - `packages/typescript-config` — shared `tsconfig` bases.
 - `.agents/skills` and `apps/web/react-router` — vendored agent skills tracked by `skills-lock.json`. Do not edit or format them.
@@ -42,7 +42,7 @@ Each app has a `Dockerfile` that is built from the repository root (the build co
 
 ## Deployment
 
-Render deploys on every commit to `main`. `render.yaml` at the root is the Blueprint: a `Memory-Map` web service (the React Router app) and a `memory-map-api` web service, both Node, free plan, Frankfurt. Neither sets a root directory, because the pnpm workspace and lockfile are at the repository root. Web reaches the api over Render's private network through `API_HOSTPORT`.
+Render deploys on every commit to `main`. `render.yaml` at the root is the Blueprint: a `Memory-Map` web service (the React Router app) and a `memory-map-api` web service, both Node, free plan, Frankfurt. Neither sets a root directory, because the pnpm workspace and lockfile are at the repository root. Web reaches the api through `API_URL`, set in `render.yaml` to the api's public URL, because free web services cannot receive private network traffic.
 
 ## Workflow
 

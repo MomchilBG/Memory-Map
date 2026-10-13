@@ -1,0 +1,28 @@
+# Render Blueprint: https://render.com/docs/blueprint-spec
+# No rootDir is set on purpose: the pnpm workspace and lockfile live at the
+# repository root and are not available to a service rooted in a subfolder.
+services:
+  - type: web
+    name: memory-map-api
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: pnpm install --frozen-lockfile --prod=false && pnpm turbo run build --filter=api
+    startCommand: pnpm --filter api start:prod
+    healthCheckPath: /
+    autoDeployTrigger: commit
+
+  - type: web
+    name: Memory-Map
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: pnpm install --frozen-lockfile --prod=false && pnpm turbo run build --filter=web
+    startCommand: pnpm --filter web start
+    autoDeployTrigger: commit
+    envVars:
+      - key: API_HOSTPORT
+        fromService:
+          type: web
+          name: memory-map-api
+          property: hostport

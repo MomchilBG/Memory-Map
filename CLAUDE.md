@@ -10,6 +10,7 @@ Memory Map is an early-stage web app. The repository is a pnpm + Turborepo monor
 
 - `apps/web` — the React Router v8 app (framework mode, Vite, Tailwind CSS v4). Next.js was removed in favour of React Router.
 - `apps/api` — the NestJS 12 API (Fastify adapter, SWC builder, ESM, Vitest). Listens on `PORT`, default 3000. The web app reaches it from its server-side loaders through the `API_URL` environment variable, default `http://localhost:3000`. It uses Drizzle ORM with Postgres: the schema is in `src/database/schema.ts`, migrations are in `apps/api/drizzle` and are applied automatically when the api starts. The connection string comes from `DATABASE_URL`, default `postgres://postgres:postgres@localhost:5432/memory_map`.
+- `apps/e2e` — Playwright end-to-end tests (Chromium). They run against an already running app at `BASE_URL`, default `http://localhost:5173`.
 - `packages/ui` — shared React components, exported as source (`@repo/ui/*` maps to `src/*.tsx`).
 - `packages/typescript-config` — shared `tsconfig` bases.
 - `.agents/skills` and `apps/web/react-router` — vendored agent skills tracked by `skills-lock.json`. Do not edit or format them.
@@ -35,6 +36,7 @@ Run from the repository root:
 - `pnpm check-types` — type-check every package.
 - `pnpm --filter api test` / `pnpm --filter api test:e2e` — run the API tests.
 - `pnpm --filter api db:generate` — generate a migration after changing the schema. Do not edit `apps/api/drizzle/meta` by hand.
+- `pnpm --filter e2e test:e2e` — run the Playwright tests; start the database and `pnpm dev` first. Browsers are installed with `pnpm --filter e2e exec playwright install chromium`.
 - `docker compose up --build` — build and run the production images; web is on http://localhost:8080 and api on http://localhost:3000.
 - `pnpm exec turbo run lint format check-types` — all checks in one go.
 
@@ -44,9 +46,9 @@ Each app has a `Dockerfile` that is built from the repository root (the build co
 
 ## CI and deployment
 
-`.github/workflows/ci.yml` runs on every pull request and on pushes to `main`. It runs `pnpm format`, `pnpm lint`, `pnpm check-types` and `pnpm audit`, and builds both Docker images and pushes them to GHCR as `ghcr.io/momchilbg/memory-map-web` and `ghcr.io/momchilbg/memory-map-api`, tagged with the commit SHA (plus `latest` on `main`). `pnpm audit` must stay clean, so fix or override vulnerable dependencies rather than ignoring them.
+`.github/workflows/ci.yml` runs on every pull request and on pushes to `main`. It runs `pnpm format`, `pnpm lint`, `pnpm check-types` and `pnpm audit`, and builds both Docker images and pushes them to GHCR as `ghcr.io/momchilbg/memory-map-web` and `ghcr.io/momchilbg/memory-map-api`, tagged with the commit SHA (plus `latest` on `main`). An `e2e` job then starts those two images and a Postgres database as service containers and runs the Playwright tests inside Microsoft's Playwright container; keep the image tag in `ci.yml` equal to the `@playwright/test` version in `apps/e2e/package.json`. `pnpm audit` must stay clean, so fix or override vulnerable dependencies rather than ignoring them.
 
-On `main`, once the earlier jobs pass, CI deploys to Render by calling each service's deploy hook (repository secrets `RENDER_DEPLOY_HOOK_WEB` and `RENDER_DEPLOY_HOOK_API`) with the commit's image. Render does not build anything itself. `render.yaml` is the Blueprint: a `Memory-Map` web service and a `memory-map-api` service, both image-backed, free plan, Frankfurt. Web reaches the api through `API_URL`, set there to the api's public URL because free web services cannot receive private network traffic. The api's `DATABASE_URL` on Render is the Neon connection string, set in the Render dashboard (not stored in the repo).
+On `main`, only if the checks and the Playwright tests pass, CI deploys to Render by calling each service's deploy hook (repository secrets `RENDER_DEPLOY_HOOK_WEB` and `RENDER_DEPLOY_HOOK_API`) with the commit's image. Render does not build anything itself. `render.yaml` is the Blueprint: a `Memory-Map` web service and a `memory-map-api` service, both image-backed, free plan, Frankfurt. Web reaches the api through `API_URL`, set there to the api's public URL because free web services cannot receive private network traffic. The api's `DATABASE_URL` on Render is the Neon connection string, set in the Render dashboard (not stored in the repo).
 
 ## Workflow
 
@@ -57,4 +59,4 @@ On `main`, once the earlier jobs pass, CI deploys to Render by calling each serv
 
 ## Roadmap
 
-Planned work, each tracked as an open issue: auth, storage, the map itself, Electron and offline mode, oRPC with react-query, zod and OpenAPI, shadcn components, E2E tests, a Render acceptance environment, dependabot, logging, error tracking, analytics and repo rules.
+Planned work, each tracked as an open issue: auth, storage, the map itself, Electron and offline mode, oRPC with react-query, zod and OpenAPI, shadcn components, a Render acceptance environment, dependabot, logging, error tracking, analytics and repo rules.

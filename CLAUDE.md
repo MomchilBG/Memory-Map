@@ -33,9 +33,12 @@ Run from the repository root:
 - `pnpm format` / `pnpm format:fix` — check or apply oxfmt formatting.
 - `pnpm check-types` — type-check every package.
 - `pnpm --filter api test` / `pnpm --filter api test:e2e` — run the API tests.
+- `docker compose up --build` — build and run the production images; web is on http://localhost:8080 and api on http://localhost:3000.
 - `pnpm exec turbo run lint format check-types` — all checks in one go.
 
 Lint and format are root tasks in `turbo.json` (`//#lint`, `//#format`), not per-package scripts.
+
+Each app has a `Dockerfile` that is built from the repository root (the build context is the whole monorepo) and uses `turbo prune` to install only what that app needs. `docker-compose.yml` at the root wires web to api through `API_URL`.
 
 ## Workflow
 
@@ -45,4 +48,4 @@ Lint and format are root tasks in `turbo.json` (`//#lint`, `//#format`), not per
 
 ## Roadmap
 
-Planned work, each tracked as an open issue: deploying the API to Render, database, auth, storage, the map itself, Electron and offline mode, oRPC with react-query, zod and OpenAPI, shadcn components, CI, E2E tests, Docker, a Render acceptance environment, dependabot, logging, error tracking, analytics and repo rules.
+Planned work, each tracked as an open issue: deploying the API to Render, database, auth, storage, the map itself, Electron and offline mode, oRPC with react-query, zod and OpenAPI, shadcn components, CI, E2E tests, a Render acceptance environment, dependabot, logging, error tracking, analytics and repo rules.

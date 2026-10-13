@@ -1,12 +1,12 @@
 {
-  "name": "my-react-router-app",
+  "name": "web",
   "private": true,
   "type": "module",
   "scripts": {
     "build": "react-router build",
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc"
+    "check-types": "react-router typegen && tsc"
   },
   "dependencies": {
     "@react-router/node": "^8.4.0",

@@ -11,6 +11,10 @@ services:
     startCommand: pnpm --filter api start:prod
     healthCheckPath: /
     autoDeployTrigger: commit
+    envVars:
+      # The Neon connection string; set it in the Render dashboard.
+      - key: DATABASE_URL
+        sync: false
 
   - type: web
     name: Memory-Map

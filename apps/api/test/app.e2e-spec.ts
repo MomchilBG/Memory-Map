@@ -2,6 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { FastifyAdapter, NestFastifyApplication } from "@nestjs/platform-fastify";
 import { AppModule } from "./../src/app.module.js";
 
+// Needs the local database: `docker compose up -d db` from the repository root.
 describe("AppController (e2e)", () => {
   let app: NestFastifyApplication;
 
@@ -19,7 +20,7 @@ describe("AppController (e2e)", () => {
     const response = await app.inject({ method: "GET", url: "/" });
 
     expect(response.statusCode).toBe(200);
-    expect(response.payload).toBe("Hello World!");
+    expect(response.payload).toBe("Hello from the database!");
   });
 
   afterEach(async () => {

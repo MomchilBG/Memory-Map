@@ -9,7 +9,7 @@ Memory Map is an early-stage web app. The repository is a pnpm + Turborepo monor
 ## Layout
 
 - `apps/web` — the React Router v8 app (framework mode, Vite, Tailwind CSS v4). Next.js was removed in favour of React Router.
-- `apps/api` — the NestJS 12 API (Fastify adapter, SWC builder, ESM, Vitest). Listens on `PORT`, default 3000. The web app reaches it from its server-side loaders through the `API_URL` environment variable, default `http://localhost:3000`.
+- `apps/api` — the NestJS 12 API (Fastify adapter, SWC builder, ESM, Vitest). Listens on `PORT`, default 3000. The web app reaches it from its server-side loaders through the `API_URL` environment variable, default `http://localhost:3000`. It uses Drizzle ORM with Postgres: the schema is in `src/database/schema.ts`, migrations are in `apps/api/drizzle` and are applied automatically when the api starts. The connection string comes from `DATABASE_URL`, default `postgres://postgres:postgres@localhost:5432/memory_map`.
 - `packages/ui` — shared React components, exported as source (`@repo/ui/*` maps to `src/*.tsx`).
 - `packages/typescript-config` — shared `tsconfig` bases.
 - `.agents/skills` and `apps/web/react-router` — vendored agent skills tracked by `skills-lock.json`. Do not edit or format them.
@@ -27,12 +27,14 @@ Memory Map is an early-stage web app. The repository is a pnpm + Turborepo monor
 
 Run from the repository root:
 
+- `docker compose up -d db` — start the local Postgres database. The api needs it, so run this before `pnpm dev` or the api e2e tests.
 - `pnpm dev` — start the dev servers.
 - `pnpm build` — build all apps and packages.
 - `pnpm lint` / `pnpm lint:fix` — run oxlint.
 - `pnpm format` / `pnpm format:fix` — check or apply oxfmt formatting.
 - `pnpm check-types` — type-check every package.
 - `pnpm --filter api test` / `pnpm --filter api test:e2e` — run the API tests.
+- `pnpm --filter api db:generate` — generate a migration after changing the schema. Do not edit `apps/api/drizzle/meta` by hand.
 - `docker compose up --build` — build and run the production images; web is on http://localhost:8080 and api on http://localhost:3000.
 - `pnpm exec turbo run lint format check-types` — all checks in one go.
 
@@ -42,7 +44,7 @@ Each app has a `Dockerfile` that is built from the repository root (the build co
 
 ## Deployment
 
-Render deploys on every commit to `main`. `render.yaml` at the root is the Blueprint: a `Memory-Map` web service (the React Router app) and a `memory-map-api` web service, both Node, free plan, Frankfurt. Neither sets a root directory, because the pnpm workspace and lockfile are at the repository root. Web reaches the api through `API_URL`, set in `render.yaml` to the api's public URL, because free web services cannot receive private network traffic.
+Render deploys on every commit to `main`. `render.yaml` at the root is the Blueprint: a `Memory-Map` web service (the React Router app) and a `memory-map-api` web service, both Node, free plan, Frankfurt. Neither sets a root directory, because the pnpm workspace and lockfile are at the repository root. Web reaches the api through `API_URL`, set in `render.yaml` to the api's public URL, because free web services cannot receive private network traffic. The api's `DATABASE_URL` on Render is the Neon connection string, set in the Render dashboard (not stored in the repo).
 
 ## Workflow
 
@@ -53,4 +55,4 @@ Render deploys on every commit to `main`. `render.yaml` at the root is the Bluep
 
 ## Roadmap
 
-Planned work, each tracked as an open issue: database, auth, storage, the map itself, Electron and offline mode, oRPC with react-query, zod and OpenAPI, shadcn components, CI, E2E tests, a Render acceptance environment, dependabot, logging, error tracking, analytics and repo rules.
+Planned work, each tracked as an open issue: auth, storage, the map itself, Electron and offline mode, oRPC with react-query, zod and OpenAPI, shadcn components, CI, E2E tests, a Render acceptance environment, dependabot, logging, error tracking, analytics and repo rules.

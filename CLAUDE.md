@@ -17,7 +17,7 @@ Memory Map is an early-stage web app. The repository is a pnpm + Turborepo monor
 ## Tooling
 
 - Package manager: pnpm 11 (`packageManager` is pinned). Do not use npm or yarn, and do not commit a `package-lock.json`.
-- Node 24 or newer is required by `engines`. pnpm downloads Node 24 for scripts automatically (`devEngines.runtime` in the root `package.json`), so always run tools through `pnpm`, not a bare system `node`.
+- Node 24 or newer is required by `engines`. The Nest CLI crashes on older versions.
 - TypeScript 7.
 - Linting: oxlint with type-aware rules enabled (`.oxlintrc.json`, backed by `oxlint-tsgolint`).
 - Formatting: oxfmt (`.oxfmtrc.json`). There is no ESLint or Prettier in this repo.
@@ -45,6 +45,7 @@ Each app has a `Dockerfile` that is built from the repository root (the build co
 - Work on a branch named after the issue, for example `2-add-linter-and-formatter`, and open a PR that closes the issue. Do not commit directly to `main`.
 - Before finishing any change, run `pnpm exec turbo run lint format check-types` and fix whatever it reports.
 - Always commit and push once the checks pass. Do not leave finished work uncommitted or wait to be asked.
+- Keep the GitHub issues up to date as you work, for every ticket: assign the issue when you start, comment with the PR link and what is done or still left, use `Closes #N` only when the whole issue is covered (otherwise `Part of #N` and leave it open), and confirm the issue closed after the merge.
 
 ## Roadmap
 

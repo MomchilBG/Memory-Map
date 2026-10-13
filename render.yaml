@@ -1,16 +1,15 @@
 # Render Blueprint: https://render.com/docs/blueprint-spec
-# No rootDir is set on purpose: the pnpm workspace and lockfile live at the
-# repository root and are not available to a service rooted in a subfolder.
+# Both services run the images that CI builds and pushes to GHCR. CI triggers
+# each deploy through the service's deploy hook, pinned to the commit's image.
 services:
   - type: web
     name: memory-map-api
-    runtime: node
+    runtime: image
+    image:
+      url: ghcr.io/momchilbg/memory-map-api:latest
     plan: free
     region: frankfurt
-    buildCommand: pnpm install --frozen-lockfile --prod=false && pnpm turbo run build --filter=api
-    startCommand: pnpm --filter api start:prod
     healthCheckPath: /
-    autoDeployTrigger: commit
     envVars:
       # The Neon connection string; set it in the Render dashboard.
       - key: DATABASE_URL
@@ -18,12 +17,11 @@ services:
 
   - type: web
     name: Memory-Map
-    runtime: node
+    runtime: image
+    image:
+      url: ghcr.io/momchilbg/memory-map-web:latest
     plan: free
     region: frankfurt
-    buildCommand: pnpm install --frozen-lockfile --prod=false && pnpm turbo run build --filter=web
-    startCommand: pnpm --filter web start
-    autoDeployTrigger: commit
     envVars:
       # The public URL: free web services cannot receive private network traffic.
       - key: API_URL

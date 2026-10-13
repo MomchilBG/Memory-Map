@@ -9,7 +9,6 @@
   "scripts": {
     "dev": "nest start --watch",
     "build": "nest build",
-    "deploy": "nest deploy",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
@@ -34,7 +33,6 @@
   },
   "devDependencies": {
     "@nestjs/cli": "^12.0.0",
-    "@nestjs/mau": "^0.2.6",
     "@nestjs/schematics": "^12.0.0",
     "@nestjs/testing": "^12.0.1",
     "@swc/cli": "^0.8.1",

@@ -42,9 +42,11 @@ Lint and format are root tasks in `turbo.json` (`//#lint`, `//#format`), not per
 
 Each app has a `Dockerfile` that is built from the repository root (the build context is the whole monorepo) and uses `turbo prune` to install only what that app needs. `docker-compose.yml` at the root wires web to api through `API_URL`.
 
-## Deployment
+## CI and deployment
 
-Render deploys on every commit to `main`. `render.yaml` at the root is the Blueprint: a `Memory-Map` web service (the React Router app) and a `memory-map-api` web service, both Node, free plan, Frankfurt. Neither sets a root directory, because the pnpm workspace and lockfile are at the repository root. Web reaches the api through `API_URL`, set in `render.yaml` to the api's public URL, because free web services cannot receive private network traffic. The api's `DATABASE_URL` on Render is the Neon connection string, set in the Render dashboard (not stored in the repo).
+`.github/workflows/ci.yml` runs on every pull request and on pushes to `main`. It runs `pnpm format`, `pnpm lint`, `pnpm check-types` and `pnpm audit`, and builds both Docker images and pushes them to GHCR as `ghcr.io/momchilbg/memory-map-web` and `ghcr.io/momchilbg/memory-map-api`, tagged with the commit SHA (plus `latest` on `main`). `pnpm audit` must stay clean, so fix or override vulnerable dependencies rather than ignoring them.
+
+On `main`, once the earlier jobs pass, CI deploys to Render by calling each service's deploy hook (repository secrets `RENDER_DEPLOY_HOOK_WEB` and `RENDER_DEPLOY_HOOK_API`) with the commit's image. Render does not build anything itself. `render.yaml` is the Blueprint: a `Memory-Map` web service and a `memory-map-api` service, both image-backed, free plan, Frankfurt. Web reaches the api through `API_URL`, set there to the api's public URL because free web services cannot receive private network traffic. The api's `DATABASE_URL` on Render is the Neon connection string, set in the Render dashboard (not stored in the repo).
 
 ## Workflow
 
@@ -55,4 +57,4 @@ Render deploys on every commit to `main`. `render.yaml` at the root is the Bluep
 
 ## Roadmap
 
-Planned work, each tracked as an open issue: auth, storage, the map itself, Electron and offline mode, oRPC with react-query, zod and OpenAPI, shadcn components, CI, E2E tests, a Render acceptance environment, dependabot, logging, error tracking, analytics and repo rules.
+Planned work, each tracked as an open issue: auth, storage, the map itself, Electron and offline mode, oRPC with react-query, zod and OpenAPI, shadcn components, E2E tests, a Render acceptance environment, dependabot, logging, error tracking, analytics and repo rules.

@@ -7,15 +7,15 @@ WORKDIR /app
 FROM base AS prepare
 RUN npm install --global turbo@2.11.7
 COPY . .
-RUN turbo prune my-react-router-app --docker
+RUN turbo prune web --docker
 
 FROM base AS builder
 # Install dependencies first, as they change less often than the source
 COPY --from=prepare /app/out/json/ .
 RUN pnpm install --frozen-lockfile
 COPY --from=prepare /app/out/full/ .
-RUN pnpm turbo run build --filter=my-react-router-app
-RUN pnpm --filter=my-react-router-app --prod --legacy deploy /prod
+RUN pnpm turbo run build --filter=web
+RUN pnpm --filter=web --prod --legacy deploy /prod
 
 FROM node:24-alpine AS runner
 ENV NODE_ENV=production

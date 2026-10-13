@@ -8,10 +8,22 @@ export function meta() {
   ];
 }
 
-export async function loader() {
-  const response = await fetch(process.env.API_URL ?? "http://localhost:3000");
+// API_URL wins when set (Docker, local overrides). On Render the Blueprint
+// provides API_HOSTPORT, the address of the api service on the private network.
+function getApiUrl() {
+  if (process.env.API_URL) return process.env.API_URL;
+  if (process.env.API_HOSTPORT) return `http://${process.env.API_HOSTPORT}`;
+  return "http://localhost:3000";
+}
 
-  return { message: await response.text() };
+export async function loader() {
+  try {
+    const response = await fetch(getApiUrl());
+
+    return { message: await response.text() };
+  } catch {
+    return { message: "(API unreachable)" };
+  }
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
